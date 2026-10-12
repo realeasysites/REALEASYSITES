@@ -8,7 +8,7 @@ One-page marketing site with plans and an intake form, plus an admin lead dashbo
 ## Plans shown
 | Plan | Setup | Monthly |
 |---|---|---|
-| Starter | $500 | $149 |
+| Starter | $500 | $99 |
 | Growth | $1,000 | $169 |
 | Pro | $1,500 | $199 |
 

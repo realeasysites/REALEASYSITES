@@ -44,7 +44,9 @@ const fs = require('fs');
 const homeHtml = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
 const siteUrl = (process.env.SITE_URL || '').replace(/\/$/, '');
 app.get(['/', '/index.html'], (req, res) => {
-  res.type('html').send(homeHtml.replace(/__SITE_URL__/g, siteUrl));
+  // Facebook needs absolute URLs. Use SITE_URL if set, otherwise the address the visitor (or crawler) used.
+  const base = siteUrl || (req.protocol + '://' + req.get('host'));
+  res.type('html').send(homeHtml.replace(/__SITE_URL__/g, base));
 });
 
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'], maxAge: '1h' }));
