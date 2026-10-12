@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Leads | Real Easy Sites</title>
+<link rel="stylesheet" href="/css/styles.css">
+<style>
+  body{background:var(--cream)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 0}
+  .top h1{font-size:1.6rem}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:6px 0 18px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .stat b{display:block;font-family:Archivo,sans-serif;font-size:1.9rem;line-height:1}
+  .stat span{font-size:.8rem;color:var(--muted)}
+  .stat.warn{border-color:#c0392b}.stat.warn b{color:#c0392b}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;font:inherit;font-size:.86rem;font-weight:600;cursor:pointer}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .lead{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:12px}
+  .lead.new{border-left:5px solid var(--gold)}
+  .lead-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+  .lead h3{font-size:1.1rem}
+  .when{font-size:.8rem;color:var(--muted)}
+  .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 18px;margin:12px 0;font-size:.9rem}
+  .meta span{color:var(--muted)}
+  .msg{background:#fbf9f4;border-radius:10px;padding:10px 12px;font-size:.92rem;white-space:pre-wrap;margin-bottom:12px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  select.st,textarea.nt{font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fbf9f4}
+  textarea.nt{width:100%;margin-top:10px;min-height:54px;resize:vertical}
+  .saved{font-size:.78rem;color:var(--green);font-weight:600}
+  .empty{text-align:center;color:var(--muted);padding:50px 0}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>Leads</h1>
+    <div class="actions">
+      <a class="btn btn-ghost btn-sm" href="/admin/api/leads.csv">Export CSV</a>
+      <a class="btn btn-ghost btn-sm" href="/" target="_blank" rel="noopener">View site</a>
+      <form method="post" action="/admin/logout" style="margin:0"><button class="btn btn-sm" type="submit">Sign out</button></form>
+    </div>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="filters" id="filters"></div>
+  <div id="list"></div>
+</div>
+<script>
+(function () {
+  var LABELS = { new: 'New', contacted: 'Contacted', mockup_sent: 'Mockup sent', won: 'Won', lost: 'Lost' };
+  var leads = [], filter = 'all';
+  var list = document.getElementById('list'), statsEl = document.getElementById('stats'), filtersEl = document.getElementById('filters');
+
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  function load() {
+    fetch('/admin/api/leads').then(function (r) {
+      if (r.status === 401) { location.reload(); throw new Error('signed out'); }
+      return r.json();
+    }).then(function (d) { leads = d.leads; renderStats(d.stats); renderFilters(); renderList(); });
+  }
+
+  function renderStats(s) {
+    statsEl.innerHTML = '';
+    [['Total leads', s.total], ['Last 7 days', s.last7], ['Last 30 days', s.last30], ['Waiting for reply', s.waiting], ['Jobs won', s.won], ['Win rate', s.winRate == null ? '—' : s.winRate + '%']].forEach(function (x) {
+      var d = el('div', 'stat'); d.appendChild(el('b', null, x[1])); d.appendChild(el('span', null, x[0])); statsEl.appendChild(d);
+    });
+    if (s.stale > 0) {
+      var w = el('div', 'stat warn'); w.appendChild(el('b', null, s.stale)); w.appendChild(el('span', null, 'Waiting over 24h')); statsEl.appendChild(w);
+    }
+  }
+
+  function renderFilters() {
+    filtersEl.innerHTML = '';
+    ['all'].concat(Object.keys(LABELS)).forEach(function (k) {
+      var n = k === 'all' ? leads.length : leads.filter(function (l) { return l.status === k; }).length;
+      var b = el('button', 'chip' + (filter === k ? ' on' : ''), (k === 'all' ? 'All' : LABELS[k]) + ' (' + n + ')');
+      b.type = 'button';
+      b.onclick = function () { filter = k; renderFilters(); renderList(); };
+      filtersEl.appendChild(b);
+    });
+  }
+
+  function patch(id, body, note) {
+    fetch('/admin/api/leads/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); })
+      .then(function () { if (note) { note.textContent = 'Saved'; setTimeout(function () { note.textContent = ''; }, 1500); } });
+  }
+
+  function fmt(s) { return new Date(s.replace(' ', 'T') + 'Z').toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }); }
+
+  function renderList() {
+    list.innerHTML = '';
+    var rows = leads.filter(function (l) { return filter === 'all' || l.status === filter; });
+    if (!rows.length) { list.appendChild(el('p', 'empty', 'No leads here yet.')); return; }
+    rows.forEach(function (l) {
+      var c = el('div', 'lead' + (l.status === 'new' ? ' new' : ''));
+      var head = el('div', 'lead-head');
+      var left = el('div'); left.appendChild(el('h3', null, l.business || l.name)); left.appendChild(el('div', 'when', l.name + ' · ' + fmt(l.created_at)));
+      head.appendChild(left);
+      var sel = el('select', 'st');
+      Object.keys(LABELS).forEach(function (k) { var o = el('option', null, LABELS[k]); o.value = k; if (k === l.status) o.selected = true; sel.appendChild(o); });
+      sel.onchange = function () { l.status = sel.value; patch(l.id, { status: sel.value }); load(); };
+      head.appendChild(sel);
+      c.appendChild(head);
+
+      var meta = el('div', 'meta');
+      [['Email', l.email], ['Phone', l.phone], ['Trade', l.trade], ['Area', l.area], ['Facebook', l.facebook, 1], ['Website', l.website, 1], ['Link check', l.link_check === 'verified' ? 'Opened fine' : (l.link_check ? 'Could not auto-verify, open to check' : '')], ['Plan', l.plan], ['Source', l.source]].forEach(function (p) {
+        if (!p[1]) return;
+        var d = el('div'); d.appendChild(el('span', null, p[0] + ': '));
+        if (p[2] && /^https?:\/\//.test(p[1])) { var a = el('a', null, p[1].replace(/^https?:\/\/(www\.)?/, '')); a.href = p[1]; a.target = '_blank'; a.rel = 'noopener'; d.appendChild(a); }
+        else d.appendChild(document.createTextNode(p[1]));
+        meta.appendChild(d);
+      });
+      c.appendChild(meta);
+      if (l.message) c.appendChild(el('div', 'msg', l.message));
+
+      var row = el('div', 'row');
+      var mk = function (txt, href) { var a = el('a', 'btn btn-ghost btn-sm', txt); a.href = href; return a; };
+      if (l.phone) { row.appendChild(mk('Call', 'tel:' + l.phone.replace(/[^\d+]/g, ''))); row.appendChild(mk('Text', 'sms:' + l.phone.replace(/[^\d+]/g, ''))); }
+      if (l.email) row.appendChild(mk('Email', 'mailto:' + l.email));
+      var saved = el('span', 'saved'); row.appendChild(saved);
+      c.appendChild(row);
+
+      var nt = el('textarea', 'nt'); nt.placeholder = 'Notes'; nt.value = l.notes || '';
+      nt.onblur = function () { if (nt.value !== (l.notes || '')) { l.notes = nt.value; patch(l.id, { notes: nt.value }, saved); } };
+      c.appendChild(nt);
+      list.appendChild(c);
+    });
+  }
+
+  load();
+})();
+</script>
+</body></html>
