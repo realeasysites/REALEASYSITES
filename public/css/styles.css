@@ -37,7 +37,7 @@ a{color:inherit}
 .mark svg{width:22px;height:22px}
 .brand img{height:44px;width:auto;display:block}
 .banner{background:#000;line-height:0}
-.banner img{width:100%;height:auto;max-height:460px;object-fit:cover;object-position:center 45%;display:block}
+.banner img{width:100%;max-width:1600px;height:auto;margin:0 auto;display:block}
 .brand-text{font-family:Archivo,sans-serif;font-weight:700;font-size:1.15rem}
 .brand-text b{font-weight:900}
 .nav{display:flex;align-items:center;gap:22px}

@@ -8,9 +8,9 @@ One-page marketing site with plans and an intake form, plus an admin lead dashbo
 ## Plans shown
 | Plan | Setup | Monthly |
 |---|---|---|
-| Starter | $500 | $99 |
+| Starter | $500 | $149 |
 | Growth | $1,000 | $169 |
-| Pro | $1,500 | $249 |
+| Pro | $1,500 | $199 |
 
 Google Ads management is included in Pro; on Starter and Growth it is an add-on quoted per client. Ad spend is paid by the client directly to Google.
 
