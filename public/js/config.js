@@ -10,7 +10,7 @@ window.RES_CONFIG = {
     { name: "Barry Larry's Food Truck & Catering", trade: "Food truck & catering", place: "Portland, ME", url: "", video: "/video/barry-larrys.mp4", poster: "/video/barry-larrys.jpg", note: "Event booking form with every request sent straight to Barry." }
   ],
   plans: {
-    Hosting: { setup: 250, monthly: 49 },
+    Hosting: { setup: 350, monthly: 49 },
     Starter: { setup: 500, monthly: 75 },
     Growth: { setup: 1000, monthly: 125 },
     Pro: { setup: 1500, monthly: 199 }
