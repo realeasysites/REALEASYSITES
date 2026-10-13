@@ -8,10 +8,12 @@ One-page marketing site with plans and an intake form, plus an admin lead dashbo
 ## Plans shown
 | Plan | Setup | Monthly |
 |---|---|---|
-| Hosting | $149 | $49 |
+| Hosting | $250 (move-over) | $49 |
 | Starter | $500 | $75 |
 | Growth | $1,000 | $125 |
 | Pro | $1,500 | $199 |
+
+The Hosting move-over means rebuilding the client's existing site on our template (same content and look) so it gets the lead form, alerts and dashboard. We do not host third-party builds as-is.
 
 Google Ads management is included in Pro; on the other plans it is an add-on quoted per client. Ad spend is paid by the client directly to Google.
 
