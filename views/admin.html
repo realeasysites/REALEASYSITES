@@ -3,8 +3,9 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Leads | Real Easy Sites</title>
 <link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/sa/admin/panel.css">
 <style>
-  body{background:var(--cream)}
+  body{background:var(--cream);--gold:var(--accent-d);--text:var(--ink)}
   .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 0}
   .top h1{font-size:1.6rem}
   .actions{display:flex;gap:8px;flex-wrap:wrap}
@@ -40,6 +41,8 @@
       <form method="post" action="/admin/logout" style="margin:0"><button class="btn btn-sm" type="submit">Sign out</button></form>
     </div>
   </div>
+  <section id="site-analytics" aria-label="Website traffic"></section>
+  <h2 style="font-size:1.25rem;margin:8px 0 10px">Mockup requests</h2>
   <div class="stats" id="stats"></div>
   <div class="filters" id="filters"></div>
   <div id="list"></div>
@@ -131,4 +134,5 @@
   load();
 })();
 </script>
+<script src="/sa/admin/panel.js"></script>
 </body></html>

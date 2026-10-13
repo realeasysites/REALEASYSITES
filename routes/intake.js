@@ -17,7 +17,7 @@ function limited(ip) {
 }
 
 const clean = (v, max) => String(v == null ? '' : v).trim().slice(0, max);
-const PLANS = ['Starter', 'Growth', 'Pro', 'Not sure yet'];
+const PLANS = ['Hosting', 'Starter', 'Growth', 'Pro', 'Not sure yet'];
 
 router.post('/api/intake', async (req, res) => {
   const b = req.body || {};

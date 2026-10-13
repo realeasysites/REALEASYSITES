@@ -36,6 +36,11 @@ app.use((req, res, next) => {
 
 app.get('/healthz', (req, res) => res.send('ok'));
 
+// Website traffic: visitors, sources and call/text taps on the admin dashboard (see site-analytics/README.md).
+const { db } = require('./db/init');
+const { isAuthed, requireAdminApi } = require('./lib/auth');
+require('./site-analytics')(app, { db, isAuthed, requireAdmin: requireAdminApi, timezone: 'America/New_York' });
+
 app.use(require('./routes/intake'));
 app.use(require('./routes/admin'));
 

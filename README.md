@@ -8,13 +8,14 @@ One-page marketing site with plans and an intake form, plus an admin lead dashbo
 ## Plans shown
 | Plan | Setup | Monthly |
 |---|---|---|
-| Starter | $500 | $99 |
-| Growth | $1,000 | $169 |
+| Hosting | $149 | $49 |
+| Starter | $500 | $75 |
+| Growth | $1,000 | $125 |
 | Pro | $1,500 | $199 |
 
-Google Ads management is included in Pro; on Starter and Growth it is an add-on quoted per client. Ad spend is paid by the client directly to Google.
+Google Ads management is included in Pro; on the other plans it is an add-on quoted per client. Ad spend is paid by the client directly to Google.
 
-If you change prices, update them in `index.html` (plan cards and the form dropdown) and `config.js`.
+If you change prices, update them in `index.html` (plan cards and the form dropdown) and the `PLANS` list in `routes/intake.js` and `config.js`.
 
 ## Render setup
 - Build: `npm install` · Start: `npm start` · Node 20.x (pinned in `.node-version` and `package.json`)
@@ -33,3 +34,11 @@ Tag outreach links with `?utm_source=...` and the source shows on each lead.
 
 ## Client work videos
 The three cards on the home page play short scrolling videos from `public/video/` (`loria`, `mps207`, `barry-larrys`: an `.mp4` plus a `.jpg` poster each). To update one, replace those files with the same names (MP4, no audio, about 1280x720, under 3MB) and redeploy. To add or remove a card, edit the `work` list in `public/js/config.js`. Videos only load and play while on screen, and visitors with reduced-motion turned on see the still poster.
+
+## Website traffic (site-analytics)
+The `/admin` dashboard shows a "Website traffic" panel above the mockup requests: visitors, page views, call/text/email taps, form leads, contact rate, where visitors came from, top pages and phone vs computer, for 7/30/90 days. It is the same `site-analytics/` module used on MPS207 (details in `site-analytics/README.md`).
+
+- No cookies, no stored IPs, no outside service. Data lives in the same SQLite file, so the persistent disk (`DB_PATH`) is required or traffic history resets on every deploy.
+- Bots, link previews and your own logged-in admin visits are not counted. To stop counting your phone, open the site once with `#notrack` on the end.
+- Tag links so sources show up by name: `?utm_source=gbp` on your Google Business Profile website link, `?utm_source=qr` on flyers.
+- For Growth and Pro clients, copy `site-analytics/` into their project and follow its README (about 5 minutes per site).
