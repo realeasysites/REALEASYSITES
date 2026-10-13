@@ -8,7 +8,7 @@ One-page marketing site with plans and an intake form, plus an admin lead dashbo
 ## Plans shown
 | Plan | Setup | Monthly |
 |---|---|---|
-| Hosting | $350 (move-over) | $49 |
+| Hosting | $399 (move-over) | $49 |
 | Starter | $500 | $75 |
 | Growth | $1,000 | $125 |
 | Pro | $1,500 | $199 |
