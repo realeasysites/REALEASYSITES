@@ -15,7 +15,20 @@ One-page marketing site with plans and an intake form, plus an admin lead dashbo
 
 The Hosting move-over means rebuilding the client's existing site on our template (same content and look) so it gets the lead form, alerts and dashboard. We do not host third-party builds as-is.
 
-Google Ads management is included in Pro; on the other plans it is an add-on quoted per client. Ad spend is paid by the client directly to Google.
+Exactly what each monthly fee covers is in the "No surprises" table on the home page (`#coverage`).
+
+### Add-ons (not part of any monthly fee unless noted)
+| Add-on | Price | Plans |
+|---|---|---|
+| Extra small edit (photo/logo swap, text, hours) | $40 each | All (Hosting has no included edits) |
+| New page / we write the page text | $200 / +$100 | All |
+| New form (job application, booking) | $150 (included in Pro) | All |
+| Google Business Profile setup or cleanup | $250 one-time | All |
+| Google Business Profile upkeep | $49/mo (included in Pro) | All |
+| Google Ads management | $299 setup + $249/mo ($199/mo on Pro); one campaign up to $1,500/mo ad spend, 10% of spend above that | All |
+| Blog setup / post we write | $350 / $125 per post (posting one they send = 1 edit) | Growth, Pro |
+| Simple online store (up to 20 products) | $999 + $25/mo | Growth, Pro |
+| Full online store | $2,000+ and from $49/mo by catalog size | Growth, Pro |
 
 If you change prices, update them in `index.html` (plan cards and the form dropdown) and the `PLANS` list in `routes/intake.js` and `config.js`.
 
