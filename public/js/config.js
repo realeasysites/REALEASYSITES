@@ -11,7 +11,7 @@ window.RES_CONFIG = {
   ],
   plans: {
     Hosting: { setup: 399, monthly: 49 },
-    Starter: { setup: 500, monthly: 75 },
+    Starter: { setup: 750, monthly: 75 },
     Growth: { setup: 1000, monthly: 125 },
     Pro: { setup: 1500, monthly: 199 }
   }
