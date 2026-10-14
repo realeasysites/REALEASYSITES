@@ -261,3 +261,19 @@ a:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visible,
 .cov tbody th{position:sticky;left:0;background:var(--white);z-index:1}
 .cov thead th:first-child{position:sticky;left:0;z-index:2}
 @media(max-width:900px){.cov tbody th{width:auto;min-width:150px;box-shadow:2px 0 0 var(--line)}}
+
+/* Pro "Best value" badge and value note */
+.badge-value{background:#ffd34d;color:var(--ink)}
+.value-note{background:rgba(255,211,77,.18);border:1px solid #f1c232;border-radius:12px;padding:10px 12px;font-size:.86rem;line-height:1.45;margin:0 0 14px;color:var(--ink)}
+.value-note b{display:block;margin-bottom:2px}
+/* Collapsible add-on prices */
+.addons-more{margin-top:18px;background:var(--white);border:1px solid var(--line);border-radius:16px}
+.addons-more>summary{cursor:pointer;list-style:none;padding:16px 20px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.addons-more>summary::-webkit-details-marker{display:none}
+.addons-more>summary::after{content:"+";font-size:1.4rem;line-height:1;color:var(--accent-d)}
+.addons-more[open]>summary::after{content:"\2013"}
+.addons-more .explain{margin:0;padding:0 18px 18px}
+.addons-more .card{box-shadow:none}
+#coverage .wrap>.explain{grid-template-columns:1fr}
+.explain>.card{min-width:0}
+@media(max-width:600px){.addons-more .explain{padding:0 10px 10px}.price-list b{white-space:normal;text-align:right;max-width:48%}}

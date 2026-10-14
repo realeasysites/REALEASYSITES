@@ -23,7 +23,7 @@ Exactly what each monthly fee covers is in the "No surprises" table on the home 
 | Extra small edit (photo/logo swap, text, hours) | $40 each | All (Hosting has no included edits) |
 | New page / we write the page text | $200 / +$100 | All |
 | New form (job application, booking) | $150 (included in Pro) | All |
-| Google Business Profile setup or cleanup | $250 one-time | All |
+| Google Business Profile setup or cleanup | $250 one-time (included in Pro) | All |
 | Google Business Profile upkeep | $49/mo (included in Pro) | All |
 | Google Ads management | $299 setup + $249/mo ($199/mo on Pro); one campaign up to $1,500/mo ad spend, 10% of spend above that | All |
 | Blog setup / post we write | $350 / $125 per post (posting one they send = 1 edit) | Growth, Pro |
