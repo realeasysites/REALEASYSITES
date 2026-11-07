@@ -13,6 +13,8 @@ One-page marketing site with plans and an intake form, plus an admin lead dashbo
 | Growth | $1,000 | $125 |
 | Pro | $1,500 | $199 |
 
+**Site Refresh** (for clients staying on Wix, Squarespace or GoDaddy): $499 one-time, done inside the client's own account as an invited collaborator (never their password). Covers a redesigned homepage plus cleanup of up to 4 more pages; extra pages $200. Optional **Platform Care** $49/mo for 2 small edits a month in their editor. Upgrade credit: $250 off any plan's setup if they move to our platform within 90 days. The client pays their platform directly.
+
 The Hosting move-over means rebuilding the client's existing site on our template (same content and look) so it gets the lead form, alerts and dashboard. We do not host third-party builds as-is.
 
 Exactly what each monthly fee covers is in the "No surprises" table on the home page (`#coverage`).
