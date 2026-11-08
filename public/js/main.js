@@ -17,7 +17,8 @@
     cfg.work.forEach(function (w) {
       var a = document.createElement(w.url ? 'a' : 'div');
       a.className = 'card work';
-      if (w.url) { a.href = w.url; a.target = '_blank'; a.rel = 'noopener'; }
+      var internal = w.url && w.url.charAt(0) === '/';
+      if (w.url) { a.href = w.url; if (!internal) { a.target = '_blank'; a.rel = 'noopener'; } }
       if (w.video || w.poster) {
         var box = document.createElement('div'); box.className = 'work-media';
         if (w.video) {
@@ -37,8 +38,12 @@
       a.appendChild(t); a.appendChild(h); a.appendChild(n);
       if (w.url) {
         var l = document.createElement('span'); l.className = 'work-link';
-        l.textContent = 'Visit ' + w.url.replace(/^https?:\/\//, '').replace(/\/$/, '') + ' \u2192';
-        var sr = document.createElement('span'); sr.className = 'sr'; sr.textContent = ' (opens in a new tab)'; l.appendChild(sr); a.appendChild(l);
+        if (internal) { l.textContent = 'See what we did \u2192'; }
+        else {
+          l.textContent = 'Visit ' + w.url.replace(/^https?:\/\//, '').replace(/\/$/, '') + ' \u2192';
+          var sr = document.createElement('span'); sr.className = 'sr'; sr.textContent = ' (opens in a new tab)'; l.appendChild(sr);
+        }
+        a.appendChild(l);
       }
       grid.appendChild(a);
     });

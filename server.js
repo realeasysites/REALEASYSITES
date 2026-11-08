@@ -85,6 +85,7 @@ app.get('/sitemap.xml', (req, res) => {
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       '  <url><loc>' + baseUrl(req) + '/</loc><lastmod>' + lastMod + '</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>\n' +
+      '  <url><loc>' + baseUrl(req) + '/work/bounce-brigade</loc><lastmod>2026-11-07</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>\n' +
       '</urlset>\n'
   );
 });
@@ -101,6 +102,7 @@ app.get('/llms.txt', (req, res) => {
       '',
       '- [Home](' + b + '/): overview, free mockup request form, plans and pricing, FAQ',
       '- [Client work](' + b + '/#work): example sites built for trade businesses',
+      '- [Case study: Bounce Brigade Site Refresh](' + b + '/work/bounce-brigade): local SEO, new photos and customer reviews added to an existing Wix site (Spencerport, NY). Site Refresh is $499 one-time, optional Platform Care $49/mo',
       '- [Plans and pricing](' + b + '/#plans): Hosting $49/mo ($399 one-time move-over), Starter $75/mo ($500 setup), Growth $125/mo ($1,000 setup), Pro $199/mo ($1,500 setup)',
       '- [What each part means](' + b + '/#included): plain-English explanation of hosting, SEO, the lead dashboard, Google Business Profile and Google Ads',
       '- [FAQ](' + b + '/#faq): mockup, ownership of your domain, changing plans',
