@@ -37,11 +37,11 @@ If you change prices, update them in `index.html` (plan cards and the form dropd
 ## Render setup
 - Build: `npm install` · Start: `npm start` · Node 20.x (pinned in `.node-version` and `package.json`)
 - Persistent disk mounted at `/var/data`, env `DB_PATH=/var/data/res.sqlite`
-- Env vars: `NODE_ENV=production`, `SITE_URL`, `NOTIFY_EMAIL`, `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_SECURE=true`, `SMTP_USER`, `SMTP_PASS` (Gmail app password), `ADMIN_USER`, `ADMIN_PASSWORD` (8+ chars), `SESSION_SECRET`
-- Admin is locked until `ADMIN_PASSWORD` is set. There is no default password.
+- Env vars: `NODE_ENV=production`, `SITE_URL`, `NOTIFY_EMAIL`, `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_SECURE=true`, `SMTP_USER`, `SMTP_PASS` (Gmail app password), `ADMIN_PASSWORD`, `SESSION_SECRET`
+- Admin sign-in is password only (no username). It is locked until `ADMIN_PASSWORD` is set; there is no default password. `ADMIN_USER` is no longer used.
 
 ## Lead flow
-Form posts to `/api/intake`, saves to SQLite, emails `NOTIFY_EMAIL` (reply goes to the customer) and sends the customer an auto-reply. Dashboard at `/admin`: statuses, notes, 7/30-day counts, waiting-over-24h warning, one-tap call/text/email, CSV export.
+Form posts to `/api/intake`, saves to SQLite, emails `NOTIFY_EMAIL` (reply goes to the customer) and sends the customer an auto-reply. Dashboard at `/admin`: statuses, notes, edit any inquiry, delete one or several at once (with a confirm prompt), 7/30-day counts, waiting-over-24h warning, one-tap call/text/email, CSV export.
 
 ## Facebook page or website check
 Both forms require a Facebook page or website link. The server (`lib/linkcheck.js`) rejects anything that is not a real page link (for example bare facebook.com, login links, localhost or private addresses), then tries to open it. It rejects only when the address clearly does not exist (no DNS record, or a 404/410). Facebook and many sites block automated checks, so unclear results are accepted and marked "Could not auto-verify" on the lead. The check runs on the server, so it works on Render; it could not be tested from the build sandbox.

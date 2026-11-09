@@ -15,14 +15,14 @@
 <form class="box" method="post" action="/admin/login">
   <h1>Real Easy Sites admin</h1>
   <p class="err" id="err" hidden></p>
-  <label>Username<input name="username" autocomplete="username" required></label>
-  <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+  <label>Password<input name="password" type="password" autocomplete="current-password" required autofocus></label>
   <button class="btn btn-block" type="submit">Sign in</button>
 </form>
 <script>
   var e = new URLSearchParams(location.search).get('e');
   var el = document.getElementById('err');
-  if (e === 'bad') { el.textContent = 'Wrong username or password.'; el.hidden = false; }
+  if (e === 'bad') { el.textContent = 'Wrong password.'; el.hidden = false; }
+  if (e === 'wait') { el.textContent = 'Too many tries. Wait 15 minutes and try again.'; el.hidden = false; }
   if (e === 'locked') { el.textContent = 'Admin is locked until ADMIN_PASSWORD is set on the server.'; el.hidden = false; }
 </script>
 </body></html>

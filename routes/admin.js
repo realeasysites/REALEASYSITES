@@ -17,13 +17,22 @@ router.get('/admin/status', (req, res) => {
   res.json({ configured: auth.isConfigured() });
 });
 
+// Simple brute-force guard: 10 wrong passwords per IP per 15 minutes.
+const fails = new Map();
+const tooMany = (ip) => (fails.get(ip) || []).filter((t) => Date.now() - t < 15 * 60 * 1000).length >= 10;
+
 router.post('/admin/login', (req, res) => {
-  const { username, password } = req.body || {};
+  const { password } = req.body || {};
   if (!auth.isConfigured()) return res.redirect('/admin?e=locked');
-  if (auth.checkCredentials(String(username || ''), String(password || ''))) {
-    req.session.admin = true;
-    return res.redirect('/admin');
+  if (tooMany(req.ip)) return res.redirect('/admin?e=wait');
+  if (auth.checkPassword(String(password || ''))) {
+    fails.delete(req.ip);
+    return req.session.regenerate(() => {
+      req.session.admin = true;
+      res.redirect('/admin');
+    });
   }
+  fails.set(req.ip, (fails.get(req.ip) || []).filter((t) => Date.now() - t < 15 * 60 * 1000).concat(Date.now()));
   return res.redirect('/admin?e=bad');
 });
 
@@ -49,19 +58,42 @@ router.get('/admin/api/leads', auth.requireAdminApi, (req, res) => {
   res.json({ leads, stats });
 });
 
+// Fields that can be corrected from the dashboard, with max lengths.
+const EDITABLE = { name: 120, business: 160, phone: 40, email: 160, trade: 80, area: 160, website: 300, facebook: 300, plan: 40, message: 3000, notes: 5000 };
+
 router.patch('/admin/api/leads/:id', auth.requireAdminApi, (req, res) => {
   const id = Number(req.params.id);
-  const { status, notes } = req.body || {};
+  const b = req.body || {};
   const row = db.prepare('SELECT id FROM leads WHERE id = ?').get(id);
   if (!row) return res.status(404).json({ error: 'Not found' });
-  if (status !== undefined) {
-    if (!STATUSES.includes(status)) return res.status(400).json({ error: 'Bad status' });
-    db.prepare('UPDATE leads SET status = ? WHERE id = ?').run(status, id);
+  if (b.status !== undefined && !STATUSES.includes(b.status)) return res.status(400).json({ error: 'Bad status' });
+
+  const sets = {};
+  if (b.status !== undefined) sets.status = b.status;
+  for (const k of Object.keys(EDITABLE)) {
+    if (b[k] !== undefined) sets[k] = String(b[k] == null ? '' : b[k]).trim().slice(0, EDITABLE[k]);
   }
-  if (notes !== undefined) {
-    db.prepare('UPDATE leads SET notes = ? WHERE id = ?').run(String(notes).slice(0, 5000), id);
-  }
+  if (sets.name !== undefined && !sets.name) return res.status(400).json({ error: 'Name cannot be empty.' });
+  const keys = Object.keys(sets);
+  if (!keys.length) return res.json({ ok: true });
+  db.prepare('UPDATE leads SET ' + keys.map((k) => k + ' = @' + k).join(', ') + ' WHERE id = @id').run({ ...sets, id });
+  res.json({ ok: true, lead: db.prepare('SELECT * FROM leads WHERE id = ?').get(id) });
+});
+
+router.delete('/admin/api/leads/:id', auth.requireAdminApi, (req, res) => {
+  const info = db.prepare('DELETE FROM leads WHERE id = ?').run(Number(req.params.id));
+  if (!info.changes) return res.status(404).json({ error: 'Not found' });
   res.json({ ok: true });
+});
+
+// Remove several at once (for spam or test entries).
+router.post('/admin/api/leads/delete', auth.requireAdminApi, (req, res) => {
+  const ids = (Array.isArray((req.body || {}).ids) ? req.body.ids : []).map(Number).filter((n) => Number.isInteger(n) && n > 0).slice(0, 500);
+  if (!ids.length) return res.status(400).json({ error: 'Nothing selected' });
+  const del = db.prepare('DELETE FROM leads WHERE id = ?');
+  let n = 0;
+  db.transaction(() => { for (const i of ids) n += del.run(i).changes; })();
+  res.json({ ok: true, deleted: n });
 });
 
 router.get('/admin/api/leads.csv', auth.requireAdminApi, (req, res) => {

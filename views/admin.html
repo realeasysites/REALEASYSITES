@@ -17,7 +17,7 @@
   .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
   .chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;font:inherit;font-size:.86rem;font-weight:600;cursor:pointer}
   .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .lead{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:12px}
+  .lead{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:0 0 12px;max-width:none;font-size:1rem;color:var(--ink)}
   .lead.new{border-left:5px solid var(--gold)}
   .lead-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
   .lead h3{font-size:1.1rem}
@@ -30,6 +30,24 @@
   textarea.nt{width:100%;margin-top:10px;min-height:54px;resize:vertical}
   .saved{font-size:.78rem;color:var(--green);font-weight:600}
   .empty{text-align:center;color:var(--muted);padding:50px 0}
+  .lead.sel{outline:2px solid var(--gold)}
+  .pick{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted);cursor:pointer}
+  .pick input{width:18px;height:18px}
+  .head-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn-danger{background:#fff;color:#c0392b;border:1.5px solid #e3b5ae}
+  .btn-danger:hover{background:#c0392b;color:#fff;border-color:#c0392b}
+  .bulk{position:sticky;top:0;z-index:5;display:none;gap:10px;align-items:center;justify-content:space-between;background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:12px}
+  .bulk.on{display:flex}
+  .bulk .btn{border-color:#fff}
+  .bulk .btn-ghost{color:#fff;background:transparent}
+  .edit{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 14px;margin:12px 0}
+  .edit label{font-size:.8rem;font-weight:600;color:var(--muted)}
+  .edit input,.edit select,.edit textarea{display:block;width:100%;margin-top:4px;font:inherit;font-size:.92rem;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fbf9f4;color:var(--ink)}
+  .edit .full{grid-column:1/-1}
+  .edit textarea{min-height:80px;resize:vertical}
+  .err-line{color:#c0392b;font-size:.85rem;font-weight:600}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;font-size:.9rem;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:100}
+  .toast.on{opacity:1}
 </style></head>
 <body>
 <div class="wrap">
@@ -45,21 +63,37 @@
   <h2 style="font-size:1.25rem;margin:8px 0 10px">Mockup requests</h2>
   <div class="stats" id="stats"></div>
   <div class="filters" id="filters"></div>
+  <div class="bulk" id="bulk"><span id="bulkCount"></span><span class="row"><button class="btn btn-ghost btn-sm" type="button" id="bulkClear">Clear</button><button class="btn btn-danger btn-sm" type="button" id="bulkDelete">Delete selected</button></span></div>
   <div id="list"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
 <script>
 (function () {
   var LABELS = { new: 'New', contacted: 'Contacted', mockup_sent: 'Mockup sent', won: 'Won', lost: 'Lost' };
-  var leads = [], filter = 'all';
+  var PLANS = ['', 'Site Refresh', 'Hosting', 'Starter', 'Growth', 'Pro', 'Not sure yet'];
+  var FIELDS = [['name', 'Name'], ['business', 'Business'], ['phone', 'Phone'], ['email', 'Email'], ['trade', 'Trade'], ['area', 'Area'], ['website', 'Website'], ['facebook', 'Facebook'], ['plan', 'Plan'], ['message', 'Message', 'full']];
+  var leads = [], filter = 'all', selected = {}, editing = {};
   var list = document.getElementById('list'), statsEl = document.getElementById('stats'), filtersEl = document.getElementById('filters');
+  var bulk = document.getElementById('bulk'), bulkCount = document.getElementById('bulkCount'), toastEl = document.getElementById('toast');
 
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function toast(t) { toastEl.textContent = t; toastEl.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(function () { toastEl.classList.remove('on'); }, 1800); }
+
+  function api(method, url, body) {
+    return fetch(url, { method: method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) {
+        if (r.status === 401) { location.reload(); throw new Error('Signed out'); }
+        return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || 'Something went wrong'); return d; });
+      });
+  }
 
   function load() {
-    fetch('/admin/api/leads').then(function (r) {
-      if (r.status === 401) { location.reload(); throw new Error('signed out'); }
-      return r.json();
-    }).then(function (d) { leads = d.leads; renderStats(d.stats); renderFilters(); renderList(); });
+    api('GET', '/admin/api/leads').then(function (d) {
+      leads = d.leads;
+      var ids = {}; leads.forEach(function (l) { ids[l.id] = 1; });
+      Object.keys(selected).forEach(function (k) { if (!ids[k]) delete selected[k]; });
+      renderStats(d.stats); renderFilters(); renderList();
+    }).catch(function (e) { toast(e.message); });
   }
 
   function renderStats(s) {
@@ -83,28 +117,76 @@
     });
   }
 
-  function patch(id, body, note) {
-    fetch('/admin/api/leads/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      .then(function (r) { return r.json(); })
-      .then(function () { if (note) { note.textContent = 'Saved'; setTimeout(function () { note.textContent = ''; }, 1500); } });
+  function renderBulk() {
+    var n = Object.keys(selected).length;
+    bulk.classList.toggle('on', n > 0);
+    bulkCount.textContent = n + ' selected';
+  }
+  document.getElementById('bulkClear').onclick = function () { selected = {}; renderList(); };
+  document.getElementById('bulkDelete').onclick = function () {
+    var ids = Object.keys(selected).map(Number);
+    if (!ids.length) return;
+    if (!confirm('Delete ' + ids.length + ' inquir' + (ids.length === 1 ? 'y' : 'ies') + '? This cannot be undone.')) return;
+    api('POST', '/admin/api/leads/delete', { ids: ids }).then(function (d) { selected = {}; toast('Deleted ' + d.deleted); load(); }).catch(function (e) { toast(e.message); });
+  };
+
+  function delOne(l) {
+    if (!confirm('Delete the inquiry from ' + (l.business || l.name) + '? This cannot be undone.')) return;
+    api('DELETE', '/admin/api/leads/' + l.id).then(function () { delete selected[l.id]; toast('Deleted'); load(); }).catch(function (e) { toast(e.message); });
   }
 
   function fmt(s) { return new Date(s.replace(' ', 'T') + 'Z').toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }); }
 
+  function editForm(l, card) {
+    var f = el('form', 'edit'); f.noValidate = true;
+    FIELDS.forEach(function (fd) {
+      var lab = el('label', fd[2] || null, fd[1]), inp;
+      if (fd[0] === 'plan') { inp = el('select'); PLANS.forEach(function (p) { var o = el('option', null, p || '—'); o.value = p; if (p === (l.plan || '')) o.selected = true; inp.appendChild(o); }); }
+      else if (fd[0] === 'message') { inp = el('textarea'); inp.value = l.message || ''; }
+      else { inp = el('input'); inp.value = l[fd[0]] || ''; if (fd[0] === 'email') inp.type = 'email'; if (fd[0] === 'phone') inp.type = 'tel'; }
+      inp.name = fd[0]; lab.appendChild(inp); f.appendChild(lab);
+    });
+    var err = el('p', 'err-line full'); f.appendChild(err);
+    var row = el('div', 'row full');
+    var save = el('button', 'btn btn-sm', 'Save changes'); save.type = 'submit';
+    var cancel = el('button', 'btn btn-ghost btn-sm', 'Cancel'); cancel.type = 'button';
+    cancel.onclick = function () { delete editing[l.id]; renderList(); };
+    row.appendChild(save); row.appendChild(cancel); f.appendChild(row);
+    f.onsubmit = function (ev) {
+      ev.preventDefault();
+      var body = {}; FIELDS.forEach(function (fd) { body[fd[0]] = f.elements[fd[0]].value; });
+      if (!body.name.trim()) { err.textContent = 'Name cannot be empty.'; return; }
+      save.disabled = true;
+      api('PATCH', '/admin/api/leads/' + l.id, body).then(function () { delete editing[l.id]; toast('Saved'); load(); })
+        .catch(function (e) { err.textContent = e.message; save.disabled = false; });
+    };
+    return f;
+  }
+
   function renderList() {
     list.innerHTML = '';
+    renderBulk();
     var rows = leads.filter(function (l) { return filter === 'all' || l.status === filter; });
     if (!rows.length) { list.appendChild(el('p', 'empty', 'No leads here yet.')); return; }
     rows.forEach(function (l) {
-      var c = el('div', 'lead' + (l.status === 'new' ? ' new' : ''));
+      var c = el('div', 'lead' + (l.status === 'new' ? ' new' : '') + (selected[l.id] ? ' sel' : ''));
       var head = el('div', 'lead-head');
       var left = el('div'); left.appendChild(el('h3', null, l.business || l.name)); left.appendChild(el('div', 'when', l.name + ' · ' + fmt(l.created_at)));
       head.appendChild(left);
-      var sel = el('select', 'st');
+
+      var right = el('div', 'head-right');
+      var pick = el('label', 'pick'); var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!selected[l.id];
+      cb.setAttribute('aria-label', 'Select ' + (l.business || l.name));
+      cb.onchange = function () { if (cb.checked) selected[l.id] = 1; else delete selected[l.id]; c.classList.toggle('sel', cb.checked); renderBulk(); };
+      pick.appendChild(cb); pick.appendChild(document.createTextNode('Select'));
+      var sel = el('select', 'st'); sel.setAttribute('aria-label', 'Status');
       Object.keys(LABELS).forEach(function (k) { var o = el('option', null, LABELS[k]); o.value = k; if (k === l.status) o.selected = true; sel.appendChild(o); });
-      sel.onchange = function () { l.status = sel.value; patch(l.id, { status: sel.value }); load(); };
-      head.appendChild(sel);
+      sel.onchange = function () { api('PATCH', '/admin/api/leads/' + l.id, { status: sel.value }).then(function () { toast('Status updated'); load(); }).catch(function (e) { toast(e.message); }); };
+      right.appendChild(pick); right.appendChild(sel);
+      head.appendChild(right);
       c.appendChild(head);
+
+      if (editing[l.id]) { c.appendChild(editForm(l, c)); list.appendChild(c); return; }
 
       var meta = el('div', 'meta');
       [['Email', l.email], ['Phone', l.phone], ['Trade', l.trade], ['Area', l.area], ['Facebook', l.facebook, 1], ['Website', l.website, 1], ['Link check', l.link_check === 'verified' ? 'Opened fine' : (l.link_check ? 'Could not auto-verify, open to check' : '')], ['Plan', l.plan], ['Source', l.source]].forEach(function (p) {
@@ -121,11 +203,17 @@
       var mk = function (txt, href) { var a = el('a', 'btn btn-ghost btn-sm', txt); a.href = href; return a; };
       if (l.phone) { row.appendChild(mk('Call', 'tel:' + l.phone.replace(/[^\d+]/g, ''))); row.appendChild(mk('Text', 'sms:' + l.phone.replace(/[^\d+]/g, ''))); }
       if (l.email) row.appendChild(mk('Email', 'mailto:' + l.email));
+      var ed = el('button', 'btn btn-ghost btn-sm', 'Edit'); ed.type = 'button'; ed.onclick = function () { editing[l.id] = 1; renderList(); };
+      var del = el('button', 'btn btn-danger btn-sm', 'Delete'); del.type = 'button'; del.onclick = function () { delOne(l); };
+      row.appendChild(ed); row.appendChild(del);
       var saved = el('span', 'saved'); row.appendChild(saved);
       c.appendChild(row);
 
       var nt = el('textarea', 'nt'); nt.placeholder = 'Notes'; nt.value = l.notes || '';
-      nt.onblur = function () { if (nt.value !== (l.notes || '')) { l.notes = nt.value; patch(l.id, { notes: nt.value }, saved); } };
+      nt.onblur = function () {
+        if (nt.value === (l.notes || '')) return;
+        api('PATCH', '/admin/api/leads/' + l.id, { notes: nt.value }).then(function () { l.notes = nt.value; saved.textContent = 'Notes saved'; setTimeout(function () { saved.textContent = ''; }, 1500); }).catch(function (e) { toast(e.message); });
+      };
       c.appendChild(nt);
       list.appendChild(c);
     });
