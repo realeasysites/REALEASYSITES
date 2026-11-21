@@ -6,6 +6,7 @@ window.RES_CONFIG = {
   // and the poster image next to it (same name, .jpg). url is optional; leave it out and the card is not a link.
   work: [
     { name: "Loria Construction", trade: "Concrete & masonry", place: "Rochester, NY", url: "https://loriaconstruction.onrender.com", video: "/video/loria.mp4", poster: "/video/loria.jpg", note: "Instant-estimate quote tool, reviews and project gallery." },
+    { name: "Donut Things Café", trade: "Donut shop & café", place: "Westbrook, ME", url: "https://donutthingscafe.com", poster: "/img/work/donut-things-card.jpg", note: "Flavor menu with prices the owner updates herself, box pre-orders and her Facebook feed." },
     { name: "McGillivary Plumbing Services", trade: "Plumbing", place: "Gardiner, ME", url: "https://mps207.com", video: "/video/mps207.mp4", poster: "/video/mps207.jpg", note: "Lead alerts, traffic dashboard and social proof built in." },
     { name: "Bounce Brigade", trade: "Site Refresh (Wix)", place: "Spencerport, NY", url: "/work/bounce-brigade", poster: "/img/work/bounce-brigade-card.jpg", note: "Kept their Wix site and booking. Added local SEO, new photos of their rentals and real customer reviews." },
     { name: "Barry Larry's Food Truck & Catering", trade: "Food truck & catering", place: "Portland, ME", url: "", video: "/video/barry-larrys.mp4", poster: "/video/barry-larrys.jpg", note: "Event booking form with every request sent straight to Barry." }

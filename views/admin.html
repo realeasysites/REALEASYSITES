@@ -71,7 +71,7 @@
 (function () {
   var LABELS = { new: 'New', contacted: 'Contacted', mockup_sent: 'Mockup sent', won: 'Won', lost: 'Lost' };
   var PLANS = ['', 'Site Refresh', 'Hosting', 'Starter', 'Growth', 'Pro', 'Not sure yet'];
-  var FIELDS = [['name', 'Name'], ['business', 'Business'], ['phone', 'Phone'], ['email', 'Email'], ['trade', 'Trade'], ['area', 'Area'], ['website', 'Website'], ['facebook', 'Facebook'], ['plan', 'Plan'], ['message', 'Message', 'full']];
+  var FIELDS = [['name', 'Name'], ['business', 'Business'], ['phone', 'Phone'], ['email', 'Email'], ['trade', 'Business type'], ['area', 'Area'], ['website', 'Website'], ['facebook', 'Facebook'], ['plan', 'Plan'], ['message', 'Message', 'full']];
   var leads = [], filter = 'all', selected = {}, editing = {};
   var list = document.getElementById('list'), statsEl = document.getElementById('stats'), filtersEl = document.getElementById('filters');
   var bulk = document.getElementById('bulk'), bulkCount = document.getElementById('bulkCount'), toastEl = document.getElementById('toast');
@@ -189,7 +189,7 @@
       if (editing[l.id]) { c.appendChild(editForm(l, c)); list.appendChild(c); return; }
 
       var meta = el('div', 'meta');
-      [['Email', l.email], ['Phone', l.phone], ['Trade', l.trade], ['Area', l.area], ['Facebook', l.facebook, 1], ['Website', l.website, 1], ['Link check', l.link_check === 'verified' ? 'Opened fine' : (l.link_check ? 'Could not auto-verify, open to check' : '')], ['Plan', l.plan], ['Source', l.source]].forEach(function (p) {
+      [['Email', l.email], ['Phone', l.phone], ['Business type', l.trade], ['Area', l.area], ['Facebook', l.facebook, 1], ['Website', l.website, 1], ['Link check', l.link_check === 'verified' ? 'Opened fine' : (l.link_check ? 'Could not auto-verify, open to check' : '')], ['Plan', l.plan], ['Source', l.source]].forEach(function (p) {
         if (!p[1]) return;
         var d = el('div'); d.appendChild(el('span', null, p[0] + ': '));
         if (p[2] && /^https?:\/\//.test(p[1])) { var a = el('a', null, p[1].replace(/^https?:\/\/(www\.)?/, '')); a.href = p[1]; a.target = '_blank'; a.rel = 'noopener'; d.appendChild(a); }
